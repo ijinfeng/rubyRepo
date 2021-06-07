@@ -1,0 +1,16 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "Ruby",
+            "request": "launch",
+            "name": "image use check",
+"program": "${workspaceRoot}/image_use_check.rb",
+            "useBundler": false,
+            "args": ["/Users/Cranz/Developer/iOS/开发/Objective-C/Project-项目/杭州盼达网络科技有限公司/PandaGaming"]
+        }
+    ]
+}
