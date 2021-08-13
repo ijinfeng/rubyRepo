@@ -77,6 +77,7 @@ POD_IS_STATIC_LIBRARY=false")
     end
     puts color_text('Create PodPushFile', Color.green)
     puts color_text("First you should modify 'PodPushFile' file and run the script again", Color.white)
+    system('open PodPushFile')
     return
 end
 
