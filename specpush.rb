@@ -75,7 +75,9 @@ POD_REPO_SOURCE=https://github.com/CocoaPods/Specs
 #如果这个库是静态库，那么需要设置为true
 POD_IS_STATIC_LIBRARY=false")
     end
-    puts color_text('Create PodPushFile', Color.green) 
+    puts color_text('Create PodPushFile', Color.green)
+    puts color_text("First you should modify 'PodPushFile' file and run the script again", Color.white)
+    return
 end
 
 puts color_text('Parse PodPushFile...', Color.white)
