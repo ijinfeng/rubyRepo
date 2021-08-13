@@ -263,7 +263,6 @@ if verify_podspec_format == true
 end
 
 # 提交pod spec到spec仓库
-__source_url = "#{git_source}"
 puts color_text("Start push pod '#{podspec_path}' to remote repo '#{pod_repo_name}'", Color.white)
 if pod_repo_name == 'trunk'
     if (is_static_lib == true ? system("pod trunk push #{podspec_path} --allow-warnings --use-libraries") : system("pod trunk push #{podspec_path} --allow-warnings")) == false
@@ -271,7 +270,7 @@ if pod_repo_name == 'trunk'
         return
     end
 else
-    if (is_static_lib == true ? system("pod repo push #{pod_repo_name} #{podspec_path} --allow-warnings --use-libraries --sources=#{__source_url}") : system("pod repo push #{pod_repo_name} #{podspec_path} --allow-warnings --sources=#{__source_url}"))  == false
+    if (is_static_lib == true ? system("pod repo push #{pod_repo_name} #{podspec_path} --allow-warnings --use-libraries") : system("pod repo push #{pod_repo_name} #{podspec_path} --allow-warnings"))  == false
         return
     end
 end
