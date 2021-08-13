@@ -1,32 +1,32 @@
 #! /usr/bin/ruby
 
 class Color
-    def self.natural 
+    def self.natural
         0
     end
-    def self.black 
-        30 
+    def self.black
+        30
     end
-    def self.red 
-        31 
+    def self.red
+        31
     end
-    def self.green 
-        32 
+    def self.green
+        32
     end
-    def self.yellow 
-        33 
+    def self.yellow
+        33
     end
-    def self.blue 
-        34 
+    def self.blue
+        34
     end
-    def self.magenta 
-        35 
+    def self.magenta
+        35
     end
-    def self.cyan 
-        36 
+    def self.cyan
+        36
     end
-    def self.white 
-        37 
+    def self.white
+        37
     end
 end
 
@@ -42,7 +42,7 @@ def die_log(text)
 end
 
 # 拉取最新代码
-# if system('git pull --rebase origin') == false 
+# if system('git pull --rebase origin') == false
 #     system('git rebase --abort')
 #     puts color_text("There is a conflict, please handle it and retry", Color.red)
 #     return
@@ -64,7 +64,7 @@ if not File::exist?(cur_path + '/PodPushFile')
     File.open(cur_path + '/PodPushFile', 'w+') do |f|
         f.write("#写入*.podspec所在的相对目录，不写默认会在脚本执行的目录下查找
 PUSH_DIR_PATH=
-#是否允许用户自定义版本号，不填或填true将允许用户设置自定义的版本号，而不是自增版本号 
+#是否允许用户自定义版本号，不填或填true将允许用户设置自定义的版本号，而不是自增版本号
 USER_CUSTOM_VERSION=true
 #默认开启验证，可以跳过验证阶段
 VERIFY_PODSPEC_FORMAT=true
@@ -87,7 +87,7 @@ File.open(cur_path + '/PodPushFile') do |f|
         key_value = line.split('=')
         key = key_value.first.to_s.gsub("\n", '').gsub(' ','').gsub("\t",'')
         value =
-        if key_value.count > 1 
+        if key_value.count > 1
             value = key_value.last.to_s.gsub("\n", '').gsub(' ','').gsub("\t",'')
         end
         # puts "key=#{key},value=#{value}"
@@ -95,7 +95,7 @@ File.open(cur_path + '/PodPushFile') do |f|
             relate_dir_path = value
             push_path = cur_path + '/' + relate_dir_path
         elsif key.to_s == 'USER_CUSTOM_VERSION' and not value.nil?
-            user_custom_version = value == 'true' 
+            user_custom_version = value == 'true'
         elsif key.to_s == 'VERIFY_PODSPEC_FORMAT' and not value.nil?
             verify_podspec_format = value == 'true'
         elsif key.to_s == 'POD_REPO_NAME' and not value.nil?
@@ -112,15 +112,23 @@ end
 
 # 搜索podspec路径
 podspec_path = ''
-find_podspec_reg = relate_dir_path.length == 0 ? '' : (relate_dir_path + '/') + '*.podspec'
+find_podspec_reg = (relate_dir_path.length == 0 ? '' : (relate_dir_path + '/')) + '*.podspec'
 # puts "Find podspec reg = #{find_podspec_reg}"
 Dir::glob(find_podspec_reg) do |f|
     podspec_path = f
 end
-puts "Find podspec in path=#{podspec_path}"
+
+if podspec_path.length == 0
+    puts "Find podspec in current dir"
+else
+    puts "Find podspec in releate path=#{podspec_path}"
+end
+
 if not File::exist?(podspec_path)
     die_log("Can't find any podspec file in path: #{podspec_path}, please modify PodPushFile' PUSH_DIR_PATH(key)")
-    return 
+    return
+else
+    puts "Find podspec named" + color_text("#{podspec_path}", Color.white)
 end
 
 # 在当前podspec目录下新建一个临时 need_delete_temp.podspec 文件
@@ -169,7 +177,7 @@ if user_custom_version == true
         end
     end
 
-    if input_valid == false 
+    if input_valid == false
         puts color_text "Input invalid version = #{input_version}，will auto +1 in last component", Color.natural
     end
 end
@@ -185,6 +193,8 @@ File.open(temp_podspec_absolute_path, 'r+') do |t|
     File.open(podspec_absolute_path) do |f|
         f.each_line do |line|
             # # 查找.version
+            # s.version      = "0.0.2"
+            # 需要注意的是，版本号可以是''，也可以是""
             write_line = line
             version_desc = /.*\.version[\s]*=.*/.match line
             if not version_desc.nil?
@@ -192,12 +202,11 @@ File.open(temp_podspec_absolute_path, 'r+') do |t|
                 if input_valid == true and user_custom_version == true
                     new_version = input_version.to_s
                 else
-                    version_num = version_coms.last.to_s.gsub("'",'')
-                    version_num = version_num.gsub(' ','')
+                    version_num = version_coms.last.to_s.gsub("'",'').gsub("\"",'').gsub(' ','')
                     v_s = version_num.split('.')
                     # 处理版本号 0.0.1
                     for i in 0...v_s.count do
-                        if i == v_s.count - 1 
+                        if i == v_s.count - 1
                             new_version += (v_s[i].to_i + 1).to_s
                         else
                             new_version += (v_s[i].to_s + '.')
@@ -214,7 +223,7 @@ File.open(temp_podspec_absolute_path, 'r+') do |t|
                 git_source = source_desc.to_s.gsub("'",'')
                 puts "git source is #{git_source}"
             end
-            t.write write_line  
+            t.write write_line
         end
     end
 end
@@ -257,11 +266,11 @@ end
 __source_url = "#{git_source}"
 puts color_text("Start push pod '#{podspec_path}' to remote repo '#{pod_repo_name}'", Color.white)
 if pod_repo_name == 'trunk'
-    if (is_static_lib == true ? system("pod trunk push #{podspec_path} --allow-warnings --use-libraries") : system("pod trunk push #{podspec_path} --allow-warnings")) == false 
+    if (is_static_lib == true ? system("pod trunk push #{podspec_path} --allow-warnings --use-libraries") : system("pod trunk push #{podspec_path} --allow-warnings")) == false
         puts "If not timeout, you need to check your 'trunk' account like: 'pod trunk me', and register code is 'pod trunk register <your email> <your name>'"
         return
     end
-else 
+else
     if (is_static_lib == true ? system("pod repo push #{pod_repo_name} #{podspec_path} --allow-warnings --use-libraries --sources=#{__source_url}") : system("pod repo push #{pod_repo_name} #{podspec_path} --allow-warnings --sources=#{__source_url}"))  == false
         return
     end
