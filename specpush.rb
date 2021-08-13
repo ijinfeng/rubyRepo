@@ -256,7 +256,7 @@ end
 # 验证podspec格式是否正确
 if verify_podspec_format == true
     puts color_text("Start verify podspec '#{podspec_path}'...", Color.white)
-    if system("pod spec lint #{podspec_path} --allow-warnings") == false
+    if system("pod lib lint #{podspec_path} --allow-warnings") == false
         die_log("[!] pod spec' format invalid")
         return
     end
