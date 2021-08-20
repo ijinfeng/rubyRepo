@@ -52,6 +52,7 @@ end
 cur_path = Dir.pwd
 push_path = cur_path
 relate_dir_path = ''
+push_podspec_name = ''
 user_custom_version = true
 verify_podspec_format = true
 pod_repo_name = 'trunk'
@@ -64,6 +65,8 @@ if not File::exist?(cur_path + '/PodPushFile')
     File.open(cur_path + '/PodPushFile', 'w+') do |f|
         f.write("#写入*.podspec所在的相对目录，不写默认会在脚本执行的目录下查找
 PUSH_DIR_PATH=
+#用户还可以指定要推送的podspec文件的名字，这个存在多个podspec的时候会用到
+PUSH_PODSPEC_NAME=
 #是否允许用户自定义版本号，不填或填true将允许用户设置自定义的版本号，而不是自增版本号
 USER_CUSTOM_VERSION=true
 #默认开启验证，可以跳过验证阶段
@@ -94,6 +97,8 @@ File.open(cur_path + '/PodPushFile') do |f|
         if key.to_s == 'PUSH_DIR_PATH' and not value.nil?
             relate_dir_path = value
             push_path = cur_path + '/' + relate_dir_path
+        elsif key.to_s == 'PUSH_PODSPEC_NAME' and not value.nil?
+            push_podspec_name = value.to_s
         elsif key.to_s == 'USER_CUSTOM_VERSION' and not value.nil?
             user_custom_version = value == 'true'
         elsif key.to_s == 'VERIFY_PODSPEC_FORMAT' and not value.nil?
@@ -112,7 +117,17 @@ end
 
 # 搜索podspec路径
 podspec_path = ''
-find_podspec_reg = (relate_dir_path.length == 0 ? '' : (relate_dir_path + '/')) + '*.podspec'
+find_podspec_reg = relate_dir_path.length == 0 ? '' : (relate_dir_path + '/')
+if not push_podspec_name.nil?
+    # 用户指定要推送某个podspec
+    if push_podspec_name.include?('.podspec')
+        find_podspec_reg += push_podspec_name
+    else
+        find_podspec_reg += (push_podspec_name + '.podspec')
+    end
+else
+    find_podspec_reg += '*.podspec'
+end
 # puts "Find podspec reg = #{find_podspec_reg}"
 Dir::glob(find_podspec_reg) do |f|
     podspec_path = f
