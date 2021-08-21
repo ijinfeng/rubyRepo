@@ -118,7 +118,7 @@ end
 # 搜索podspec路径
 podspec_path = ''
 find_podspec_reg = relate_dir_path.length == 0 ? '' : (relate_dir_path + '/')
-if not push_podspec_name.nil?
+if push_podspec_name.length > 0
     # 用户指定要推送某个podspec
     if push_podspec_name.include?('.podspec')
         find_podspec_reg += push_podspec_name
@@ -128,22 +128,42 @@ if not push_podspec_name.nil?
 else
     find_podspec_reg += '*.podspec'
 end
-# puts "Find podspec reg = #{find_podspec_reg}"
+#puts "Find podspec reg = #{find_podspec_reg}"
+# 有可能存在多个 podspec，当用户没有指定时，需要给用户自主选择
+find_podspec_count = 0
+podspecs = Array.new
 Dir::glob(find_podspec_reg) do |f|
-    podspec_path = f
+    find_podspec_count += 1
+    podspecs << f
 end
 
-if podspec_path.length == 0
-    puts "Find podspec in current dir"
+if podspecs.count > 1
+    inputTag = true
+    serial = 0
+    puts color_text("Find #{podspecs.count} podspec files, please enter the serial number selection:",Color.white)
+    while inputTag
+        for i in 0...podspecs.count do
+            puts "#{i+1}. #{podspecs[i]}"
+        end
+        serial = gets.chomp
+        inputTag = (serial.to_i > podspecs.count || serial.to_i <= 0)
+        if inputTag
+            puts "Input serial = #{serial}, it's invalid and you need to input 1~#{podspecs.count}:"
+        end
+    end
+    podspec_path = podspecs[serial.to_i-1]
+elsif podspecs.count == 1
+    podspec_path = podspecs[0]
 else
-    puts "Find podspec in releate path=#{podspec_path}"
+    puts color_text("Can't find any podspec file", Color.red)
+    return
 end
 
 if not File::exist?(podspec_path)
     die_log("Can't find any podspec file in path: #{podspec_path}, please modify PodPushFile' PUSH_DIR_PATH(key)")
     return
 else
-    puts "Find podspec named" + color_text("#{podspec_path}", Color.white)
+    puts "Ready to deal with podspec named " + color_text("#{podspec_path}", Color.white)
 end
 
 # 在当前podspec目录下新建一个临时 need_delete_temp.podspec 文件
