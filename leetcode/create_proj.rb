@@ -76,6 +76,10 @@ def create_proj(target_dir_path=nil, proj_type=1)
         debug_build_setting['SDKROOT'] = 'macosx'
         release_build_setting['SDKROOT'] = 'macosx'
 
+        # xcode 13.0上需要显示的设置下 'macOS Deployment Target'
+        debug_build_setting['MACOSX_DEPLOYMENT_TARGET'] = '11.0'
+        release_build_setting['MACOSX_DEPLOYMENT_TARGET'] = '11.0'
+                    
         project.save
 
         puts "Create file #{file_name}"
