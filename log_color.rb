@@ -37,4 +37,4 @@ def color_text(text, color = Color.natural)
     return "\033[#{color}m#{text}\033[0m"
 end
 
-puts color_text('Hello') + color_text(' Color ', Color.red) + color_text('Ruby!', Color.white)
+#puts color_text('Hello') + color_text(' Color ', Color.red) + color_text('Ruby!', Color.white)
