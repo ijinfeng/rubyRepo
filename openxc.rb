@@ -2,26 +2,32 @@
 
 require_relative './log_color'
 
-cur_path = Dir.pwd
-has_xcwrokspace = false
-xcworkspace_name = ""
-xcodeproj_name = ""
-open_file_name = ""
+append = ARGV.first
 
-Dir::glob('*.xcworkspace') do |name|
+cur_path = Dir.pwd
+if not append.nil? and File.directory? append
+    cur_path = append
+end
+
+
+has_xcwrokspace = false
+open_file_name = ""
+open_file_path = ""
+
+Dir::glob("#{cur_path}/*.xcworkspace") do |name|
     has_xcwrokspace = true
-    xcworkspace_name = name
-    open_file_name = name
+    open_file_path = name
+    open_file_name = File.basename(name)
 end
 
 if has_xcwrokspace == false 
-    Dir.glob('*.xcodeproj') do |name|
-        xcodeproj_name = name
-        open_file_name = name
+    Dir.glob("#{cur_path}/*.xcodeproj") do |name|
+        open_file_path = name
+        open_file_name = File.basename(name)
     end
 end
 
-open_file_path = cur_path + "/" + open_file_name
+puts "target file path is: #{open_file_path}"
 
 puts "Start open file: " + color_text(open_file_name, Color.white)
 system("open \"#{open_file_path}\"")
