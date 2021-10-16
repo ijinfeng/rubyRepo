@@ -10,4 +10,5 @@ my ruby projs
 * [打印颜色](https://github.com/ijinfeng/rubyRepo/blob/master/log_color.rb)
 * [pod库自动部署脚本](https://github.com/ijinfeng/rubyRepo/blob/master/specpush.rb)
 * [git提交脚本](https://github.com/ijinfeng/rubyRepo/blob/master/submit.rb)
-
+* [快捷打开常用项目目录](https://github.com/ijinfeng/rubyRepo/blob/master/pls.rb)
+* [快捷打开Xcode项目](https://github.com/ijinfeng/rubyRepo/blob/master/openxc.rb)
