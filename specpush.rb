@@ -118,7 +118,6 @@ File.open(cur_path + '/PodPushFile') do |f|
     end
 end
 
-# puts "Push path is: #{push_path}, relate dir path is: #{relate_dir_path}"
 
 # 搜索podspec路径
 podspec_path = ''
@@ -296,7 +295,7 @@ end
 
 # 验证podspec格式是否正确
 if verify_podspec_format == true
-    __sources = sources.nil? ? '' : "--sources=#{sources}"
+    __sources = sources.empty? ? '' : "--sources=#{sources}"
     puts color_text("Start verify podspec '#{podspec_path}'...", Color.white)
     if system("pod lib lint #{podspec_path} #{__sources} --allow-warnings") == false
         die_log("[!] pod spec' format invalid")
