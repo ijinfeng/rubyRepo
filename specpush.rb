@@ -58,6 +58,7 @@ verify_podspec_format = true
 pod_repo_name = 'trunk'
 pod_repo_source =
 is_static_lib = false
+sources = ''
 
 # 检查是否存在 SpecPushFile 文件，如果不存在，那么创建
 if not File::exist?(cur_path + '/PodPushFile')
@@ -76,7 +77,9 @@ POD_REPO_NAME=trunk
 #pod repo的源地址
 POD_REPO_SOURCE=https://github.com/CocoaPods/Specs
 #如果这个库是静态库，那么需要设置为true
-POD_IS_STATIC_LIBRARY=false")
+POD_IS_STATIC_LIBRARY=false
+#校验podspec文件时如果依赖私有库，会到远程podspec库查找相关依赖，默认只会到官方specs库校验，此时需要指定远程specs库去校验。
+SEARCH_SOURCES=")
     end
     puts color_text('Create PodPushFile', Color.green)
     puts color_text("First you should modify 'PodPushFile' file and run the script again", Color.white)
@@ -109,6 +112,8 @@ File.open(cur_path + '/PodPushFile') do |f|
             pod_repo_source = value
         elsif key.to_s == 'POD_IS_STATIC_LIBRARY' and not value.nil?
             is_static_lib = value == 'true'
+        elsif key.to_s == 'SEARCH_SOURCES' and not value.nil?
+            sources = value.to_s
         end
     end
 end
@@ -128,6 +133,7 @@ if push_podspec_name.length > 0
 else
     find_podspec_reg += '*.podspec'
 end
+
 #puts "Find podspec reg = #{find_podspec_reg}"
 # 有可能存在多个 podspec，当用户没有指定时，需要给用户自主选择
 find_podspec_count = 0
@@ -290,8 +296,9 @@ end
 
 # 验证podspec格式是否正确
 if verify_podspec_format == true
+    __sources = sources.nil? ? '' : "--sources=#{sources}"
     puts color_text("Start verify podspec '#{podspec_path}'...", Color.white)
-    if system("pod lib lint #{podspec_path} --allow-warnings") == false
+    if system("pod lib lint #{podspec_path} #{__sources} --allow-warnings") == false
         die_log("[!] pod spec' format invalid")
         return
     end
