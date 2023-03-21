@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
-puts "Start exec archive macos script 🚗"
-puts "Current exec directory is: #{Dir.pwd}"
+puts "🚗 Start exec archive macos script 🚗"
+puts "👉 Current exec directory is: #{Dir.pwd}"
 
 cur_path = Dir.pwd
 output_dir = "./Build"
@@ -10,6 +10,20 @@ DISTRIBUTION_CODE_SIGN_IDENTITY = "Apple Distribution: Haihuman Technology Co., 
 DEVELOPER_CODE_SIGN_IDENTITY = "Apple Development: le huang (WSJL265X98)"
 ARCHIVE_METHOD = "mac-application"
 TEAM_ID = "M69DRNUMV4"
+
+# function
+def green_text(text)
+    return "\033[32m#{text}\033[0m"
+end
+
+def yellow_text(text)
+    return "\033[33m#{text}\033[0m"
+end
+
+def white_text(text)
+    return  "\033[37m#{text}\033[0m"
+end
+
 
 has_xcwrokspace = false
 open_proj_path = ""
@@ -27,20 +41,29 @@ if has_xcwrokspace == false
     end
 end
 
-puts "Find a valid project named: #{proj_full_name}"
+puts yellow_text("Find a valid project named: #{white_text(proj_full_name)}")
 
+# target名字
 target_name = File.basename(open_proj_path, ".*")
 
 # 先清理项目
-puts "First clean the target #{target_name} 🧹 ..."
+puts yellow_text("First clean the target #{white_text(target_name)} 🧹 ...")
 `xcodebuild -target #{target_name} clean`
 
+# pod
+pod_file = "Podfile"
+if File::exist?(pod_file)
+    puts yellow_text("🧠 Find a podfile, next step is exec #{green_text('pod install')}")
+    system("pod install")
+end
+
+
 # 构建
-puts "Start the archive task 💼 ..."
+puts yellow_text("💼 Start the archive task ...")
 archive_path = output_dir + "/#{target_name}"
 archive_full_path = archive_path + ".xcarchive"
 if has_xcwrokspace then
-    `xcodebuild archive -wrokspace #{proj_full_name} \
+    `xcodebuild archive -workspace #{proj_full_name} \
     -scheme #{target_name} \
     -configuration Release \
     -archivePath #{archive_path} \
@@ -52,17 +75,17 @@ else
     -archivePath #{archive_path} \
     `
 end
-puts "Archive successfuly in path => #{archive_path}"
+puts green_text("Archive successfuly in path => #{white_text(archive_path)}")
 
 # 生成ipa
-puts "Start generate IPA packet 📦 ..."
+puts yellow_text("📦 Start generate IPA packet ...")
 
 # 判断是否存在exportPlist文件
 export_options_plist_name = "exprotOptionsPlist.plist"
 if File::exist?(export_options_plist_name)
     File::delete(export_options_plist_name)
 end
-puts "Start create a #{export_options_plist_name} file in #{cur_path}"
+puts yellow_text("Start create file #{white_text(export_options_plist_name)}")
 `touch #{export_options_plist_name}`
 File.open("#{export_options_plist_name}", "w+") do |f|
     f.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -80,16 +103,16 @@ File.open("#{export_options_plist_name}", "w+") do |f|
 end
 
 # 开始导出IPA
-puts "Start export ipa ⛓️ ..."
+puts yellow_text("Start export ipa ⛓️ ...")
 `xcodebuild -exportArchive \
 -archivePath #{archive_full_path} \
 -exportPath #{output_dir} \
 -exportOptionsPlist #{export_options_plist_name}
 `
-puts "IPA is exported in directory => #{output_dir}"
+puts yellow_text("👏 IPA is exported in directory => #{white_text(output_dir)}")
 
 # 删除archive包
-puts "Delete the useless archive file 🚛"
+puts yellow_text("🚛 Delete the useless archive file #{white_text(archive_full_path)}")
 `rm -rf #{archive_full_path}`
 
-puts "💪 Now, Archive work is all finished ! ☕️"
+puts green_text("💪 Now, Archive work is all finished ! ☕️")
