@@ -12,3 +12,6 @@ my ruby projs
 * [git提交脚本](https://github.com/ijinfeng/rubyRepo/blob/master/submit.rb)
 * [快捷打开常用项目目录](https://github.com/ijinfeng/rubyRepo/blob/master/pls.rb)
 * [快捷打开Xcode项目](https://github.com/ijinfeng/rubyRepo/blob/master/openxc.rb)
+* [显示Xcode编译后不显示Products的问题](https://github.com/ijinfeng/rubyRepo/blob/master/show_products.rb)
+* [打包MacOS项目](https://github.com/ijinfeng/rubyRepo/blob/master/archive_macos.rb)
+* [上传APP到gitlab上并发送钉钉消息](https://github.com/ijinfeng/rubyRepo/blob/master/upload_app.rb)

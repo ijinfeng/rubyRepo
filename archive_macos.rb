@@ -12,8 +12,6 @@ puts "👉 Current exec directory is: #{Dir.pwd}"
 cur_path = Dir.pwd
 output_dir = "./Build"
 # 证书的id
-DISTRIBUTION_CODE_SIGN_IDENTITY = "Apple Distribution: Haihuman Technology Co., Ltd. (M69DRNUMV4)"
-DEVELOPER_CODE_SIGN_IDENTITY = "Apple Development: le huang (WSJL265X98)"
 ARCHIVE_METHOD = "mac-application"
 TEAM_ID = "M69DRNUMV4"
 
