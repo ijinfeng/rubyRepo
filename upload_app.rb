@@ -88,5 +88,3 @@ def upload(path)
 
    dingTalk
 end
-
-dingTalk
