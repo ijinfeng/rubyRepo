@@ -1,5 +1,11 @@
 #!/usr/bin/ruby
 
+require_relative "./upload_app.rb"
+require_relative "./color_log.rb"
+
+puts "-------------------------------------------------"
+puts "|                 ARCHIVE TASK                  |"
+puts "-------------------------------------------------"
 puts "🚗 Start exec archive macos script 🚗"
 puts "👉 Current exec directory is: #{Dir.pwd}"
 
@@ -10,20 +16,6 @@ DISTRIBUTION_CODE_SIGN_IDENTITY = "Apple Distribution: Haihuman Technology Co., 
 DEVELOPER_CODE_SIGN_IDENTITY = "Apple Development: le huang (WSJL265X98)"
 ARCHIVE_METHOD = "mac-application"
 TEAM_ID = "M69DRNUMV4"
-
-# function
-def green_text(text)
-    return "\033[32m#{text}\033[0m"
-end
-
-def yellow_text(text)
-    return "\033[33m#{text}\033[0m"
-end
-
-def white_text(text)
-    return  "\033[37m#{text}\033[0m"
-end
-
 
 has_xcwrokspace = false
 open_proj_path = ""
@@ -102,17 +94,20 @@ File.open("#{export_options_plist_name}", "w+") do |f|
     </plist>")
 end
 
-# 开始导出IPA
-puts yellow_text("Start export ipa ⛓️ ...")
+# 开始导出APP
+puts yellow_text("Start export app ⛓️ ...")
 `xcodebuild -exportArchive \
 -archivePath #{archive_full_path} \
 -exportPath #{output_dir} \
 -exportOptionsPlist #{export_options_plist_name}
 `
-puts yellow_text("👏 IPA is exported in directory => #{white_text(output_dir)}")
+puts yellow_text("👏 App is exported in directory => #{white_text(output_dir)}")
 
 # 删除archive包
 puts yellow_text("🚛 Delete the useless archive file #{white_text(archive_full_path)}")
 `rm -rf #{archive_full_path}`
 
-puts green_text("💪 Now, Archive work is all finished ! ☕️")
+puts green_text("💪 Now, Archive work is all finished !")
+
+# 开始上传app
+upload("#{output_dir}/#{target_name}.app")
