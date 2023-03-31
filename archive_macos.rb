@@ -12,6 +12,8 @@ puts "👉 Current exec directory is: #{Dir.pwd}"
 cur_path = Dir.pwd
 output_dir = "./Build"
 # 证书的id
+DISTRIBUTION_CODE_SIGN_IDENTITY = "Apple Distribution: Haihuman Technology Co., Ltd. (M69DRNUMV4)"
+DEVELOPER_CODE_SIGN_IDENTITY = "Apple Development: le huang (WSJL265X98)"
 ARCHIVE_METHOD = "mac-application"
 TEAM_ID = "M69DRNUMV4"
 
@@ -38,34 +40,57 @@ target_name = File.basename(open_proj_path, ".*")
 
 # 先清理项目
 puts yellow_text("First clean the target #{white_text(target_name)} 🧹 ...")
-`xcodebuild -target #{target_name} clean`
+if has_xcwrokspace then
+    `xcodebuild clean \
+    -workspace #{proj_full_name} \
+    -scheme #{target_name} \
+    -configuration Release`
+else
+    `xcodebuild clean \
+    -project #{proj_full_name} \
+    -scheme #{target_name} \
+    -configuration Release`
+end
 
 # pod
 pod_file = "Podfile"
+pod_ret = false
 if File::exist?(pod_file)
     puts yellow_text("🧠 Find a podfile, next step is exec #{green_text('pod install')}")
-    system("pod install")
+    pod_ret = system("pod install")
 end
-
+if pod_ret == false
+    return
+end
 
 # 构建
 puts yellow_text("💼 Start the archive task ...")
 archive_path = output_dir + "/#{target_name}"
 archive_full_path = archive_path + ".xcarchive"
+archive_ret = false
 if has_xcwrokspace then
-    `xcodebuild archive -workspace #{proj_full_name} \
+    archive_ret = system("xcodebuild archive -workspace #{proj_full_name} \
     -scheme #{target_name} \
     -configuration Release \
     -archivePath #{archive_path} \
-    `
+    -arch x86_64 \
+    -quiet
+    ")
 else
-    `xcodebuild archive -project #{proj_full_name} \
+    archive_ret = system("xcodebuild archive -project #{proj_full_name} \
     -scheme #{target_name} \
     -configuration Release \
     -archivePath #{archive_path} \
-    `
+    -arch x86_64 \
+    -quiet
+    ")
 end
-puts green_text("Archive successfuly in path => #{white_text(archive_path)}")
+if archive_ret == true then
+    puts green_text("Successfuly archived in path => #{white_text(archive_path)}")
+else
+    puts red_text("Archived in failded")
+    return
+end
 
 # 生成ipa
 puts yellow_text("📦 Start generate IPA packet ...")
@@ -94,18 +119,24 @@ end
 
 # 开始导出APP
 puts yellow_text("Start export app ⛓️ ...")
-`xcodebuild -exportArchive \
+export_ret = false
+export_ret = system("xcodebuild -exportArchive \
 -archivePath #{archive_full_path} \
 -exportPath #{output_dir} \
 -exportOptionsPlist #{export_options_plist_name}
-`
-puts yellow_text("👏 App is exported in directory => #{white_text(output_dir)}")
+")
+if export_ret == true then
+    puts yellow_text("👏 App had exported in directory => #{white_text(output_dir)}")
+else
+    puts red_text("Exported in failded")
+    return
+end
 
 # 删除archive包
 puts yellow_text("🚛 Delete the useless archive file #{white_text(archive_full_path)}")
 `rm -rf #{archive_full_path}`
 
-puts green_text("💪 Now, Archive work is all finished !")
+puts green_text("💪 Now, Archive work is all finished!")
 
 # 开始上传app
 upload("#{output_dir}/#{target_name}.app")
