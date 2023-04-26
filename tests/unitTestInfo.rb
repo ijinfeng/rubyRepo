@@ -100,22 +100,43 @@ def generate_summary_object(summaries, failures, output)
     failures_count = 0
     duration = 0
 
+    failures_json = {}
+
     rows.each do |row|
         tests_count += row[:number_of_tests]
         failures_count += row[:number_of_failures]
         duration += row[:duration]
         puts "#{row[:target_name]}, #{tests_count}, #{failures_count}"
+
+        if failures_count > 0
+            failures = row[:tests].find_all { |a| (a[:failures] || []).count > 0 }
+            failure_test_json = {}
+            failures.map { |t|
+                failure_test_json[:name] = t[:name]
+                failure_test_json[:error] = t[:failures][0][:failure_message]
+            }
+
+            failures_json[row[:test_name]] = failure_test_json
+        end
     end
 
     puts "单元测试用例数：#{tests_count}" 
-    output.puts tests_count
+    # output.puts tests_count
 
     puts "失败单元测试用例数：#{failures_count}"
-    output.puts failures_count
+    # output.puts failures_count
 
     duration = duration.round(2)
     puts "单元测试运行总时长：#{duration}s"
-    output.puts duration
+    # output.puts duration
+
+    output_json = {
+      testCount: tests_count,
+      failureCount: failures_count,
+      duration: duration,
+      failures: failures_json
+    }
+    output.puts output_json.to_json
 
 end
 
@@ -129,7 +150,7 @@ if __FILE__ == $0
     Trollop::die :xcresult_path, 'must be provided' if opts[:xcresult_path].nil?
 
     # 将结果写入到文件中
-    result_path = if opts[:output_file].nil? then 'unitTestInfo.txt' else opts[:output_file] end
+    result_path = if opts[:output_file].nil? then 'unitTestInfo.json' else opts[:output_file] end
     output = File.new(result_path, "w+")
     parse_xcresult(opts[:xcresult_path], output)
 
